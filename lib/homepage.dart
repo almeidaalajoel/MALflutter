@@ -34,7 +34,8 @@ class HomePageState extends State<HomePage> {
                   ),
                 ),
                 onSubmitted: (text) {
-                  Navigator.of(context).push(
+                  Navigator.push(
+                    context,
                     MaterialPageRoute(
                       builder: (context) => ApiGod('$text'),
                     ),
