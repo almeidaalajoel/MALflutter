@@ -1,6 +1,9 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'networkingstuff.dart';
+import 'dart:async';
+import 'dart:ui' as ui;
+import 'package:flutter/material.dart';
 
 class Search {
   final List<int> id;
@@ -55,7 +58,8 @@ class Anime {
       season,
       source,
       rating,
-      background;
+      background,
+      enTitle;
   final List<String> alternativeTitles,
       genres,
       pictures,
@@ -63,6 +67,7 @@ class Anime {
       //relatedManga,
       recommendations,
       studios;
+  final List<int> dims;
   //final bool myRewatching;
 
   Anime(
@@ -98,7 +103,9 @@ class Anime {
       this.studios,
       this.synopsis,
       this.title,
-      this.year});
+      this.enTitle,
+      this.year,
+      this.dims});
 
   factory Anime.fromJson(Map<String, dynamic> json) {
     int tempId = 0,
@@ -126,7 +133,10 @@ class Anime {
       tempYear = json['start_season']['year'];
     }
 
-    double tempMean = json['mean'];
+    double tempMean = 0.0;
+    if (json.containsKey('mean')) {
+      tempMean = json['mean'].toDouble();
+    }
 
     String tempTitle = '',
         tempMainPicture = '',
@@ -141,7 +151,8 @@ class Anime {
         tempSeason = '',
         tempSource = '',
         tempRating = '',
-        tempBackground = '';
+        tempBackground = '',
+        tempEnTitle = '';
 
     tempTitle = json['title'];
     tempMainPicture = json['main_picture']['large'];
@@ -156,6 +167,7 @@ class Anime {
     tempSource = json['source'];
     tempRating = json['rating'];
     tempBackground = json['background'];
+    tempEnTitle = json['alternative_titles']['en'];
 
     if (json.containsKey('start_season')) {
       tempSeason = json['start_season']['season'];
@@ -229,18 +241,36 @@ class Anime {
         relatedAnime: tempRelatedAnime,
         //relatedManga: tempRelatedManga,
         recommendations: tempRecommendations,
+        enTitle: tempEnTitle,
         studios: tempStudios);
     //myRewatching: tempMyRewatching);
   }
+}
+
+Future<List> giveDims(String s) async {
+  List list = [];
+  final Image image = Image(image: NetworkImage(s));
+  Completer<ui.Image> completer = new Completer<ui.Image>();
+  image.image
+      .resolve(new ImageConfiguration())
+      .addListener(new ImageStreamListener((ImageInfo image, bool _) {
+    completer.complete(image.image);
+  }));
+  ui.Image info = await completer.future;
+  double pWidth = info.width.toDouble();
+  double pHeight = info.height.toDouble();
+  list.add(pWidth);
+  list.add(pHeight);
+  return list;
 }
 
 Future<Anime> fetchAnime(String malurl) async {
   final response = await http.get(malurl, headers: {
     'Authorization': 'Bearer $token',
   });
-
+  Anime anime = Anime.fromJson(jsonDecode(response.body));
   if (response.statusCode == 200) {
-    return Anime.fromJson(jsonDecode(response.body));
+    return anime;
   } else {
     throw Exception('Failed to load search');
   }

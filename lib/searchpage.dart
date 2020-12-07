@@ -58,7 +58,7 @@ class _ApiGodState extends State<ApiGod> {
               return Text("${snapshot.error}");
             }
             // By default, show a loading spinner.
-            return Text('No Search Yet!');
+            return CircularProgressIndicator();
           },
         ),
       ),
