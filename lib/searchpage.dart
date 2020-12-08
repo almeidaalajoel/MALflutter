@@ -3,6 +3,7 @@ import 'homepage.dart';
 import 'search.dart';
 import 'animepage.dart';
 import 'main.dart';
+import 'animelistpage.dart';
 
 class ApiGod extends StatefulWidget {
   static const routeName = '/apiGod';
@@ -67,7 +68,7 @@ class _ApiGodState extends State<ApiGod> {
 
   Widget _buildList(AsyncSnapshot<Search> s) {
     return ListView.separated(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(10.0),
       itemCount: s.data.id.length,
       itemBuilder: (context, i) {
         return GestureDetector(
@@ -84,7 +85,12 @@ class _ApiGodState extends State<ApiGod> {
               child: Container(
                 height: 70,
                 alignment: Alignment(-1.0, 0.0),
-                child: Text('${s.data.title[i]}'),
+                child: Text(
+                  '${s.data.title[i]}',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
             Expanded(

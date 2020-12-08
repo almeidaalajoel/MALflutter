@@ -33,6 +33,71 @@ class Search {
 //start_season,broadcast,source,average_episode_duration,rating,pictures,background,related_anime,related_manga,recommendations,studios,statistics' \
 //-H 'Authorization: Bearer YOUR_TOKEN'
 
+class AnimeList {
+  final List<int> id;
+  final List<String> title;
+  final List<String> mainPicture;
+  final List<String> status;
+  final List<int> score;
+  final List<int> numEpisodesWatched;
+  final List<bool> isRewatching;
+  final List<String> updatedAt;
+  String paging;
+
+  AnimeList({
+    this.id,
+    this.isRewatching,
+    this.mainPicture,
+    this.numEpisodesWatched,
+    this.score,
+    this.status,
+    this.title,
+    this.updatedAt,
+    this.paging,
+  });
+
+  factory AnimeList.fromJson(Map<String, dynamic> json) {
+    List<int> tempId = [];
+    List<String> tempTitle = [];
+    List<String> tempPicture = [];
+    List<String> tempStatus = [];
+    List<int> tempScore = [];
+    List<int> tempNumEpisodesWatched = [];
+    List<bool> tempIsRewatching = [];
+    List<String> tempUpdatedAt = [];
+    String tempPaging = '';
+
+    for (var i = 0; i < json['data'].length; i++) {
+      tempId.add(json['data'][i]['node']['id']);
+      tempTitle.add(json['data'][i]['node']['title']);
+      tempPicture.add(json['data'][i]['node']['main_picture']['large']);
+      tempStatus.add(json['data'][i]['list_status']['status']);
+      tempScore.add(json['data'][i]['list_status']['score']);
+      tempNumEpisodesWatched
+          .add(json['data'][i]['list_status']['num_episodes_watched']);
+      tempIsRewatching.add(json['data'][i]['list_status']['is_rewatching']);
+      tempUpdatedAt.add(json['data'][i]['list_status']['updated_at']);
+      if (json['paging'].containsKey('next')) {
+        tempPaging = (json['paging']['next']);
+      } else {
+        tempPaging = ('null');
+      }
+    }
+
+    return AnimeList(
+      id: tempId,
+      title: tempTitle,
+      mainPicture: tempPicture,
+      status: tempStatus,
+      score: tempScore,
+      numEpisodesWatched: tempNumEpisodesWatched,
+      isRewatching: tempIsRewatching,
+      updatedAt: tempUpdatedAt,
+      paging: tempPaging,
+    );
+  }
+}
+
 class Anime {
   final double mean;
   final int id,
@@ -71,40 +136,40 @@ class Anime {
   //final bool myRewatching;
 
   Anime(
-      {this.id,
-      this.popularity,
+      {this.id = 0,
+      this.popularity = 0,
       this.alternativeTitles,
-      this.averageEpDuration,
-      this.background,
-      this.endDate,
+      this.averageEpDuration = 0,
+      this.background = '',
+      this.endDate = '',
       this.genres,
-      this.mainPicture,
-      this.mean,
-      this.mediaType,
+      this.mainPicture = '',
+      this.mean = 0.0,
+      this.mediaType = '',
       //this.myEpisodesWatched,
       //this.myRewatching,
       //this.myScore,
       //this.myStatus,
       //this.myUpdated,
-      this.nsfw,
-      this.numEpisodes,
-      this.numListUsers,
-      this.numScoringUsers,
+      this.nsfw = '',
+      this.numEpisodes = 0,
+      this.numListUsers = 0,
+      this.numScoringUsers = 0,
       this.pictures,
-      this.rank,
-      this.rating,
+      this.rank = 0,
+      this.rating = '',
       this.recommendations,
       this.relatedAnime,
       //this.relatedManga,
-      this.season,
-      this.source,
-      this.startDate,
-      this.status,
+      this.season = '',
+      this.source = '',
+      this.startDate = '',
+      this.status = '',
       this.studios,
-      this.synopsis,
-      this.title,
-      this.enTitle,
-      this.year,
+      this.synopsis = '',
+      this.title = '',
+      this.enTitle = '',
+      this.year = 0,
       this.dims});
 
   factory Anime.fromJson(Map<String, dynamic> json) {
@@ -187,24 +252,34 @@ class Anime {
     tempAlternativeTitles.add('en: ${json['alternative_titles']['en']}');
     tempAlternativeTitles.add('ja: ${json['alternative_titles']['ja']}');
 
-    for (var i = 0; i < json['genres'].length; i++) {
-      tempGenres.add(json['genres'][i]['name']);
+    if (json.containsKey('genres')) {
+      for (var i = 0; i < json['genres'].length; i++) {
+        tempGenres.add(json['genres'][i]['name']);
+      }
     }
 
-    for (var i = 0; i < json['pictures'].length; i++) {
-      tempPictures.add(json['pictures'][i]['large']);
+    if (json.containsKey('pictures')) {
+      for (var i = 0; i < json['pictures'].length; i++) {
+        tempPictures.add(json['pictures'][i]['large']);
+      }
     }
 
-    for (var i = 0; i < json['related_anime'].length; i++) {
-      tempRelatedAnime.add(json['related_anime'][i]['node']['title']);
+    if (json.containsKey('related_anime')) {
+      for (var i = 0; i < json['related_anime'].length; i++) {
+        tempRelatedAnime.add(json['related_anime'][i]['node']['title']);
+      }
     }
 
-    for (var i = 0; i < json['recommendations'].length; i++) {
-      tempRecommendations.add(json['recommendations'][i]['node']['title']);
+    if (json.containsKey('recommendations')) {
+      for (var i = 0; i < json['recommendations'].length; i++) {
+        tempRecommendations.add(json['recommendations'][i]['node']['title']);
+      }
     }
 
-    for (var i = 0; i < json['studios'].length; i++) {
-      tempStudios.add(json['studios'][i]['name']);
+    if (json.containsKey('studios')) {
+      for (var i = 0; i < json['studios'].length; i++) {
+        tempStudios.add(json['studios'][i]['name']);
+      }
     }
 
     //bool tempMyRewatching = json['my_list_status']['is_rewatching'];
@@ -245,26 +320,56 @@ class Anime {
         studios: tempStudios);
     //myRewatching: tempMyRewatching);
   }
+  bool notNull() {
+    if (title.length > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
 
-Future<List> giveDims(String s) async {
-  List list = [];
-  final Image image = Image(image: NetworkImage(s));
-  Completer<ui.Image> completer = new Completer<ui.Image>();
-  image.image
-      .resolve(new ImageConfiguration())
-      .addListener(new ImageStreamListener((ImageInfo image, bool _) {
-    completer.complete(image.image);
-  }));
-  ui.Image info = await completer.future;
-  double pWidth = info.width.toDouble();
-  double pHeight = info.height.toDouble();
-  list.add(pWidth);
-  list.add(pHeight);
-  return list;
+Future<AnimeList> fetchList(String malurl) async {
+  final response = await http.get(malurl, headers: {
+    'Authorization': 'Bearer $token',
+  });
+  AnimeList animeList = AnimeList.fromJson(jsonDecode(response.body));
+  final response2 = await http.get(malurl, headers: {
+    'Authorization': 'Bearer $token',
+  });
+
+  AnimeList tempList = AnimeList.fromJson(jsonDecode(response2.body));
+  //int i = 0;
+  dynamic wtf;
+  print('test');
+  print(tempList.paging);
+
+  while (tempList.paging != ('null')) {
+    print(tempList.paging);
+    wtf = await http.get(animeList.paging, headers: {
+      'Authorization': 'Bearer $token',
+    });
+    tempList = AnimeList.fromJson(jsonDecode(wtf.body));
+    for (int j = 0; j < tempList.id.length; j++) {
+      animeList.id.add(tempList.id[j]);
+      animeList.title.add(tempList.title[j]);
+      animeList.mainPicture.add(tempList.mainPicture[j]);
+      animeList.status.add(tempList.status[j]);
+      animeList.score.add(tempList.score[j]);
+      animeList.numEpisodesWatched.add(tempList.numEpisodesWatched[j]);
+      animeList.isRewatching.add(tempList.isRewatching[j]);
+      animeList.updatedAt.add(tempList.updatedAt[j]);
+      animeList.paging = tempList.paging;
+    }
+  }
+  if (response.statusCode == 200) {
+    return animeList;
+  } else {
+    throw Exception('Failed to load search');
+  }
 }
 
-Future<Anime> fetchAnime(String malurl) async {
+fetchAnime(String malurl) async {
   final response = await http.get(malurl, headers: {
     'Authorization': 'Bearer $token',
   });

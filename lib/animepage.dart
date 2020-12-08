@@ -14,113 +14,131 @@ class AnimePage extends StatefulWidget {
 }
 
 class _AnimePageState extends State<AnimePage> {
-  Future<Anime> futureAnime;
-  Future<List> futureDims;
-  String url;
-  List<double> dimsList;
+  Anime anime = new Anime();
+  //List dims = [];
 
   @override
   void initState() {
     super.initState();
-    futureAnime = fetchAnime(
-        'https://api.myanimelist.net/v2/anime/${widget.id}?fields=id,title,main_picture,alternative_titles,start_date,end_date,synopsis,mean,rank,popularity,num_list_users,num_scoring_users,nsfw,created_at,updated_at,media_type,status,genres,my_list_status,num_episodes,start_season,broadcast,source,average_episode_duration,rating,pictures,background,related_anime,related_manga,recommendations,studios,statistics');
+    fetchAnime(
+            'https://api.myanimelist.net/v2/anime/${widget.id}?fields=id,title,main_picture,alternative_titles,start_date,end_date,synopsis,mean,rank,popularity,num_list_users,num_scoring_users,nsfw,created_at,updated_at,media_type,status,genres,my_list_status,num_episodes,start_season,broadcast,source,average_episode_duration,rating,pictures,background,related_anime,related_manga,recommendations,studios,statistics')
+        .then((anim) {
+      setState(() {
+        anime = anim;
+      });
+      //fetchDims(anim.mainPicture).then((dim) {
+      //dims = dim;
+      //setState(() {});
+      //});
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
-      body: FutureBuilder<Anime>(
-        future: futureAnime,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return _buildPage(snapshot);
-          } else if (snapshot.hasError) {
-            return (Text('${snapshot.error}'));
-          } else {
-            return Container(
+      appBar: AppBar(
+        centerTitle: true,
+        backgroundColor: Color.fromARGB(255, 47, 82, 162),
+        title: Container(
+          height: 110,
+          child: Image(
+            image: AssetImage('assets/mal2.png'),
+          ),
+        ),
+      ),
+      body: anime.notNull()
+          ? _buildPage(anime)
+          : Container(
               color: Colors.white,
               child: Center(
                 child: CircularProgressIndicator(),
               ),
-            );
-          }
-        },
-      ),
+            ),
     );
   }
 
-  Widget _buildPage(AsyncSnapshot<Anime> s) {
-    //double wid = dimsList[0];
-    //double hei = dimsList[1];
+  Widget _buildPage(Anime a) {
     return SingleChildScrollView(
       child: Column(
         children: [
-          Row(
-            children: [
-              Container(
-                width: 150,
-                alignment: Alignment(-1.0, -1.0),
-                child: Image(
-                  image: NetworkImage(s.data.mainPicture),
-                ),
-              ),
-              Flexible(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Flexible(
-                      flex: 10,
-                      fit: FlexFit.loose,
-                      child: Container(
-                        color: Colors.green,
-                        alignment: Alignment(-1.0, -1.0),
-                        child: Text(
-                          '${s.data.title}',
-                          style: TextStyle(
-                            fontSize: 25,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.lightBlue[50],
+            ),
+            child: Column(
+              children: [
+                Container(
+                  child: Text(
+                    '${a.title}',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
                     ),
-                    Flexible(
-                      fit: FlexFit.loose,
-                      flex: 1,
-                      child: Container(
-                        color: Colors.red,
-                        alignment: Alignment(-1.0, -1.0),
+                  ),
+                ),
+                a.enTitle.length > 0 //only show english title if it exists
+                    ? Container(
                         child: Text(
-                          '${s.data.enTitle}',
+                          '${a.enTitle}',
+                          textAlign: TextAlign.center,
                           style: TextStyle(
+                            color: Colors.black.withOpacity(0.4),
                             fontSize: 15,
                           ),
                         ),
-                      ),
-                    ),
-                    Flexible(
-                      fit: FlexFit.loose,
-                      flex: 1,
-                      child: Container(
-                        color: Colors.blue,
-                        alignment: Alignment(-1.0, -1.0),
-                        child: Text(
-                          'Genres: ${s.data.genres.join(', ')}',
-                          style: TextStyle(
-                            fontSize: 15,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                      )
+                    : Container(),
+                Container(
+                  height: 230,
+                  alignment: Alignment(0, 0),
+                  child: Image(
+                    image: NetworkImage(a.mainPicture),
+                  ),
                 ),
-              ),
-            ],
-            crossAxisAlignment: CrossAxisAlignment.start,
+                Container(
+                  child: Text(
+                    'Score: ${a.mean} (${a.numScoringUsers} ratings)',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Container(
+                  child: Text('Studios: ${a.studios.join(', ')}'),
+                ),
+                Container(
+                  child: Text(
+                    'Genres: ${a.genres.join(', ')}',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.black.withOpacity(0.4),
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
           Container(
-            child: Text('${s.data.synopsis}'),
+            color: Colors.lightGreen[50],
+            child: Column(
+              children: [
+                Container(
+                    padding: EdgeInsets.fromLTRB(7.0, 5.0, 7.0, 3.0),
+                    child: Text(
+                      'Synopsis',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
+                    )),
+                Container(
+                  padding: EdgeInsets.fromLTRB(7.0, 0, 7.0, 5.0),
+                  child: Text('${a.synopsis}'),
+                ),
+              ],
+            ),
           ),
         ],
       ),
