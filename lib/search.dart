@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'networkingstuff.dart';
@@ -28,23 +30,18 @@ class Search {
     );
   }
 }
-//curl 'https://api.myanimelist.net/v2/anime/30230?fields=id,title,main_picture,alternative_titles,start_date,end_date,synopsis,
-//mean,rank,popularity,num_list_users,num_scoring_users,nsfw,created_at,updated_at,media_type,status,genres,my_list_status,num_episodes,
-//start_season,broadcast,source,average_episode_duration,rating,pictures,background,related_anime,related_manga,recommendations,studios,statistics' \
-//-H 'Authorization: Bearer YOUR_TOKEN'
 
-class AnimeList {
-  final List<int> id;
-  final List<String> title;
-  final List<String> mainPicture;
-  final List<String> status;
-  final List<int> score;
-  final List<int> numEpisodesWatched;
-  final List<bool> isRewatching;
-  final List<String> updatedAt;
-  String paging;
+class AnimeList2 {
+  int id;
+  String title;
+  String mainPicture;
+  String status;
+  int score;
+  int numEpisodesWatched;
+  bool isRewatching;
+  String updatedAt;
 
-  AnimeList({
+  AnimeList2({
     this.id,
     this.isRewatching,
     this.mainPicture,
@@ -53,38 +50,28 @@ class AnimeList {
     this.status,
     this.title,
     this.updatedAt,
-    this.paging,
   });
 
-  factory AnimeList.fromJson(Map<String, dynamic> json) {
-    List<int> tempId = [];
-    List<String> tempTitle = [];
-    List<String> tempPicture = [];
-    List<String> tempStatus = [];
-    List<int> tempScore = [];
-    List<int> tempNumEpisodesWatched = [];
-    List<bool> tempIsRewatching = [];
-    List<String> tempUpdatedAt = [];
-    String tempPaging = '';
+  factory AnimeList2.fromJson(Map<String, dynamic> json) {
+    int tempId = 0;
+    String tempTitle = '';
+    String tempPicture = '';
+    String tempStatus = '';
+    int tempScore = 0;
+    int tempNumEpisodesWatched = 0;
+    bool tempIsRewatching = false;
+    String tempUpdatedAt = '';
 
-    for (var i = 0; i < json['data'].length; i++) {
-      tempId.add(json['data'][i]['node']['id']);
-      tempTitle.add(json['data'][i]['node']['title']);
-      tempPicture.add(json['data'][i]['node']['main_picture']['large']);
-      tempStatus.add(json['data'][i]['list_status']['status']);
-      tempScore.add(json['data'][i]['list_status']['score']);
-      tempNumEpisodesWatched
-          .add(json['data'][i]['list_status']['num_episodes_watched']);
-      tempIsRewatching.add(json['data'][i]['list_status']['is_rewatching']);
-      tempUpdatedAt.add(json['data'][i]['list_status']['updated_at']);
-      if (json['paging'].containsKey('next')) {
-        tempPaging = (json['paging']['next']);
-      } else {
-        tempPaging = ('null');
-      }
-    }
+    tempId = (json['node']['id']);
+    tempTitle = (json['node']['title']);
+    tempPicture = (json['node']['main_picture']['large']);
+    tempStatus = (json['list_status']['status']);
+    tempScore = (json['list_status']['score']);
+    tempNumEpisodesWatched = (json['list_status']['num_episodes_watched']);
+    tempIsRewatching = (json['list_status']['is_rewatching']);
+    tempUpdatedAt = (json['list_status']['updated_at']);
 
-    return AnimeList(
+    return AnimeList2(
       id: tempId,
       title: tempTitle,
       mainPicture: tempPicture,
@@ -93,10 +80,15 @@ class AnimeList {
       numEpisodesWatched: tempNumEpisodesWatched,
       isRewatching: tempIsRewatching,
       updatedAt: tempUpdatedAt,
-      paging: tempPaging,
     );
   }
 }
+
+//API call used to return json for Anime object:
+/*curl 'https://api.myanimelist.net/v2/anime/30230?fields=id,title,main_picture,alternative_titles,start_date,end_date,synopsis,
+mean,rank,popularity,num_list_users,num_scoring_users,nsfw,created_at,updated_at,media_type,status,genres,my_list_status,num_episodes,
+start_season,broadcast,source,average_episode_duration,rating,pictures,background,related_anime,related_manga,recommendations,studios,statistics' \
+-H 'Authorization: Bearer YOUR_TOKEN' */
 
 class Anime {
   final double mean;
@@ -105,8 +97,8 @@ class Anime {
       rank,
       numListUsers,
       numScoringUsers,
-      //myScore,
-      //myEpisodesWatched,
+      myScore,
+      myEpisodesWatched,
       numEpisodes,
       averageEpDuration,
       year;
@@ -118,8 +110,8 @@ class Anime {
       nsfw,
       mediaType,
       status,
-      //myStatus,
-      //myUpdated,
+      myStatus,
+      myUpdated,
       season,
       source,
       rating,
@@ -133,7 +125,7 @@ class Anime {
       recommendations,
       studios;
   final List<int> dims;
-  //final bool myRewatching;
+  final bool myRewatching;
 
   Anime(
       {this.id = 0,
@@ -146,11 +138,11 @@ class Anime {
       this.mainPicture = '',
       this.mean = 0.0,
       this.mediaType = '',
-      //this.myEpisodesWatched,
-      //this.myRewatching,
-      //this.myScore,
-      //this.myStatus,
-      //this.myUpdated,
+      this.myEpisodesWatched = 0,
+      this.myRewatching = false,
+      this.myScore = 0,
+      this.myStatus = 'none',
+      this.myUpdated = '',
       this.nsfw = '',
       this.numEpisodes = 0,
       this.numListUsers = 0,
@@ -178,8 +170,8 @@ class Anime {
         tempRank = 0,
         tempNumListUsers = 0,
         tempNumScoringUsers = 0,
-        //tempMyScore=0,
-        //tempMyEpisodesWatched=0,
+        tempMyScore = 0,
+        tempMyEpisodesWatched = 0,
         tempNumEpisodes = 0,
         tempAverageEpDuration = 0,
         tempYear = 0;
@@ -189,8 +181,11 @@ class Anime {
     tempRank = json['rank'];
     tempNumListUsers = json['num_list_users'];
     tempNumScoringUsers = json['num_scoring_users'];
-    //tempMyScore = json['my_list_status']['score'];
-    //tempMyEpisodesWatched = json['my_list_status']['num_episodes_watched'];
+    if (json.containsKey('my_list_status')) {
+      tempMyScore = json['my_list_status']['score'];
+      tempMyEpisodesWatched = json['my_list_status']['num_episodes_watched'];
+    }
+
     tempNumEpisodes = json['num_episodes'];
     tempAverageEpDuration = json['average_episode_duration'];
 
@@ -211,8 +206,8 @@ class Anime {
         tempNsfw = '',
         tempMediaType = '',
         tempStatus = '',
-        //tempMyStatus = '',
-        //tempMyUpdated = '',
+        tempMyStatus = '',
+        tempMyUpdated = '',
         tempSeason = '',
         tempSource = '',
         tempRating = '',
@@ -227,8 +222,10 @@ class Anime {
     tempNsfw = json['nsfw'];
     tempMediaType = json['media_type'];
     tempStatus = json['status'];
-    //tempMyStatus = json['my_list_status']['status'],
-    //tempMyUpdated = json['my_list_status']['updated_at'],
+    if (json.containsKey('my_list_status')) {
+      tempMyStatus = json['my_list_status']['status'];
+      tempMyUpdated = json['my_list_status']['updated_at'];
+    }
     tempSource = json['source'];
     tempRating = json['rating'];
     tempBackground = json['background'];
@@ -282,43 +279,47 @@ class Anime {
       }
     }
 
-    //bool tempMyRewatching = json['my_list_status']['is_rewatching'];
+    bool tempMyRewatching = false;
+    if (json.containsKey('my_list_status')) {
+      tempMyRewatching = json['my_list_status']['is_rewatching'];
+    }
 
     return Anime(
-        id: tempId,
-        popularity: tempPopularity,
-        mean: tempMean,
-        rank: tempRank,
-        numListUsers: tempNumListUsers,
-        numScoringUsers: tempNumScoringUsers,
-        //myScore: tempMyScore,
-        //myEpisodesWatched: tempMyEpisodesWatched,
-        numEpisodes: tempNumEpisodes,
-        averageEpDuration: tempAverageEpDuration,
-        year: tempYear,
-        title: tempTitle,
-        mainPicture: tempMainPicture,
-        startDate: tempStartDate,
-        endDate: tempEndDate,
-        synopsis: tempSynopsis,
-        nsfw: tempNsfw,
-        mediaType: tempMediaType,
-        status: tempStatus,
-        //myStatus: tempMyStatus,
-        //myUpdated: tempMyUpdated,
-        season: tempSeason,
-        source: tempSource,
-        rating: tempRating,
-        background: tempBackground,
-        alternativeTitles: tempAlternativeTitles,
-        genres: tempGenres,
-        pictures: tempPictures,
-        relatedAnime: tempRelatedAnime,
-        //relatedManga: tempRelatedManga,
-        recommendations: tempRecommendations,
-        enTitle: tempEnTitle,
-        studios: tempStudios);
-    //myRewatching: tempMyRewatching);
+      id: tempId,
+      popularity: tempPopularity,
+      mean: tempMean,
+      rank: tempRank,
+      numListUsers: tempNumListUsers,
+      numScoringUsers: tempNumScoringUsers,
+      myScore: tempMyScore,
+      myEpisodesWatched: tempMyEpisodesWatched,
+      numEpisodes: tempNumEpisodes,
+      averageEpDuration: tempAverageEpDuration,
+      year: tempYear,
+      title: tempTitle,
+      mainPicture: tempMainPicture,
+      startDate: tempStartDate,
+      endDate: tempEndDate,
+      synopsis: tempSynopsis,
+      nsfw: tempNsfw,
+      mediaType: tempMediaType,
+      status: tempStatus,
+      myStatus: tempMyStatus,
+      myUpdated: tempMyUpdated,
+      season: tempSeason,
+      source: tempSource,
+      rating: tempRating,
+      background: tempBackground,
+      alternativeTitles: tempAlternativeTitles,
+      genres: tempGenres,
+      pictures: tempPictures,
+      relatedAnime: tempRelatedAnime,
+      //relatedManga: tempRelatedManga,
+      recommendations: tempRecommendations,
+      enTitle: tempEnTitle,
+      studios: tempStudios,
+      myRewatching: tempMyRewatching,
+    );
   }
   bool notNull() {
     if (title.length > 0) {
@@ -329,41 +330,64 @@ class Anime {
   }
 }
 
-Future<AnimeList> fetchList(String malurl) async {
+changeStatus(String status, String id, String myScore) async {
+  switch (status) {
+    case 'Completed':
+      status = 'completed';
+      break;
+    case 'Watching':
+      status = 'watching';
+      break;
+    case 'Plan to Watch':
+      status = 'plan_to_watch';
+      break;
+    case 'On hold':
+      status = 'on_hold';
+      break;
+    case 'Dropped':
+      status = 'dropped';
+      break;
+  }
+  if (myScore == 'Not Yet Rated') {
+    myScore = '0';
+  }
+  print(myScore);
+
+  Map<String, dynamic> body = {
+    'status': status,
+    'score': myScore,
+  };
+  final r = await http.put(
+      'https://api.myanimelist.net/v2/anime/$id/my_list_status',
+      body: body,
+      headers: {
+        'Authorization': 'Bearer $token',
+      });
+  print(r.body);
+}
+
+fetchList2(String malurl) async {
+  List<AnimeList2> animeListList = [];
+  AnimeList2 animeList;
   final response = await http.get(malurl, headers: {
     'Authorization': 'Bearer $token',
   });
-  AnimeList animeList = AnimeList.fromJson(jsonDecode(response.body));
-  final response2 = await http.get(malurl, headers: {
-    'Authorization': 'Bearer $token',
-  });
+  Map<String, dynamic> json = jsonDecode(response.body);
+  dynamic response2;
 
-  AnimeList tempList = AnimeList.fromJson(jsonDecode(response2.body));
-  //int i = 0;
-  dynamic wtf;
-  print('test');
-  print(tempList.paging);
-
-  while (tempList.paging != ('null')) {
-    print(tempList.paging);
-    wtf = await http.get(animeList.paging, headers: {
-      'Authorization': 'Bearer $token',
-    });
-    tempList = AnimeList.fromJson(jsonDecode(wtf.body));
-    for (int j = 0; j < tempList.id.length; j++) {
-      animeList.id.add(tempList.id[j]);
-      animeList.title.add(tempList.title[j]);
-      animeList.mainPicture.add(tempList.mainPicture[j]);
-      animeList.status.add(tempList.status[j]);
-      animeList.score.add(tempList.score[j]);
-      animeList.numEpisodesWatched.add(tempList.numEpisodesWatched[j]);
-      animeList.isRewatching.add(tempList.isRewatching[j]);
-      animeList.updatedAt.add(tempList.updatedAt[j]);
-      animeList.paging = tempList.paging;
+  do {
+    for (int i = 0; i < json['data'].length; i++) {
+      animeList = AnimeList2.fromJson(json['data'][i]);
+      animeListList.add(animeList);
     }
-  }
+    if (json['paging'].containsKey('next')) {
+      response2 = await http.get(json['paging']['next']);
+      json = jsonDecode(response2.body);
+    }
+  } while (json['paging'].containsKey('next'));
+
   if (response.statusCode == 200) {
-    return animeList;
+    return animeListList;
   } else {
     throw Exception('Failed to load search');
   }

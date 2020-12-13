@@ -54,7 +54,7 @@ class _ApiGodState extends State<ApiGod> {
           future: futureSearch,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              return _buildList(snapshot);
+              return _buildSearch(snapshot);
             } else if (snapshot.hasError) {
               return Text("${snapshot.error}");
             }
@@ -66,7 +66,7 @@ class _ApiGodState extends State<ApiGod> {
     );
   }
 
-  Widget _buildList(AsyncSnapshot<Search> s) {
+  Widget _buildSearch(AsyncSnapshot<Search> s) {
     return ListView.separated(
       padding: const EdgeInsets.all(10.0),
       itemCount: s.data.id.length,

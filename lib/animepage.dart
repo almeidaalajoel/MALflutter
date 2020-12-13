@@ -4,6 +4,7 @@ import 'homepage.dart';
 import 'search.dart';
 import 'searchpage.dart';
 import 'dart:ui' as ui;
+import 'dart:convert';
 
 class AnimePage extends StatefulWidget {
   static const routeName = '/animePage';
@@ -15,7 +16,8 @@ class AnimePage extends StatefulWidget {
 
 class _AnimePageState extends State<AnimePage> {
   Anime anime = new Anime();
-  //List dims = [];
+  String status = 'Add to List';
+  String myScore;
 
   @override
   void initState() {
@@ -25,11 +27,32 @@ class _AnimePageState extends State<AnimePage> {
         .then((anim) {
       setState(() {
         anime = anim;
+        if (anim.myScore == 0) {
+          myScore = 'Not Yet Rated';
+        } else {
+          myScore = '${anim.myScore}';
+        }
+        switch (anim.myStatus) {
+          case '':
+            status = 'Add to List';
+            break;
+          case 'completed':
+            status = 'Completed';
+            break;
+          case 'watching':
+            status = 'Watching';
+            break;
+          case 'plan_to_watch':
+            status = 'Plan to Watch';
+            break;
+          case 'on_hold':
+            status = 'On Hold';
+            break;
+          case 'dropped':
+            status = 'Dropped';
+            break;
+        }
       });
-      //fetchDims(anim.mainPicture).then((dim) {
-      //dims = dim;
-      //setState(() {});
-      //});
     });
   }
 
@@ -47,7 +70,10 @@ class _AnimePageState extends State<AnimePage> {
         ),
       ),
       body: anime.notNull()
-          ? _buildPage(anime)
+          ? WillPopScope(
+              onWillPop: _pop,
+              child: _buildPage(),
+            )
           : Container(
               color: Colors.white,
               child: Center(
@@ -57,7 +83,12 @@ class _AnimePageState extends State<AnimePage> {
     );
   }
 
-  Widget _buildPage(Anime a) {
+  Future<bool> _pop() async {
+    Navigator.pop(context, [status, myScore]);
+    return Future.value(true);
+  }
+
+  Widget _buildPage() {
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -69,7 +100,7 @@ class _AnimePageState extends State<AnimePage> {
               children: [
                 Container(
                   child: Text(
-                    '${a.title}',
+                    '${anime.title}',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 25,
@@ -77,10 +108,10 @@ class _AnimePageState extends State<AnimePage> {
                     ),
                   ),
                 ),
-                a.enTitle.length > 0 //only show english title if it exists
+                anime.enTitle.length > 0 //only show english title if it exists
                     ? Container(
                         child: Text(
-                          '${a.enTitle}',
+                          '${anime.enTitle}',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Colors.black.withOpacity(0.4),
@@ -93,29 +124,89 @@ class _AnimePageState extends State<AnimePage> {
                   height: 230,
                   alignment: Alignment(0, 0),
                   child: Image(
-                    image: NetworkImage(a.mainPicture),
+                    image: NetworkImage(anime.mainPicture),
                   ),
                 ),
                 Container(
                   child: Text(
-                    'Score: ${a.mean} (${a.numScoringUsers} ratings)',
+                    'Score: ${anime.mean} (${anime.numScoringUsers} ratings)',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
                 Container(
-                  child: Text('Studios: ${a.studios.join(', ')}'),
+                  child: Text('Studios: ${anime.studios.join(', ')}'),
                 ),
                 Container(
                   child: Text(
-                    'Genres: ${a.genres.join(', ')}',
+                    'Genres: ${anime.genres.join(', ')}',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.black.withOpacity(0.4),
                       fontSize: 13,
                     ),
                   ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                DropdownButton<String>(
+                  value: status,
+                  icon: Icon(Icons.arrow_downward),
+                  onChanged: (String newValue) {
+                    setState(() {
+                      FocusScope.of(context).requestFocus(new FocusNode());
+                      status = newValue;
+                      changeStatus(status, '${anime.id}', myScore);
+                    });
+                  },
+                  items: <String>[
+                    'Add to List',
+                    'Completed',
+                    'Watching',
+                    'Plan to Watch',
+                    'On Hold',
+                    'Dropped',
+                  ].map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+                DropdownButton<String>(
+                  value: myScore,
+                  icon: Icon(Icons.arrow_downward),
+                  onChanged: (String newValue) {
+                    setState(() {
+                      FocusScope.of(context).requestFocus(new FocusNode());
+                      myScore = newValue;
+                      changeStatus(status, '${anime.id}', myScore);
+                    });
+                  },
+                  items: <String>[
+                    'Not Yet Rated',
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5',
+                    '6',
+                    '7',
+                    '8',
+                    '9',
+                    '10',
+                  ].map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
                 ),
               ],
             ),
@@ -135,7 +226,7 @@ class _AnimePageState extends State<AnimePage> {
                     )),
                 Container(
                   padding: EdgeInsets.fromLTRB(7.0, 0, 7.0, 5.0),
-                  child: Text('${a.synopsis}'),
+                  child: Text('${anime.synopsis}'),
                 ),
               ],
             ),
