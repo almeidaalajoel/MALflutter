@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'search.dart';
 import 'searchpage.dart';
 import 'animelistpage.dart';
 
@@ -44,7 +43,7 @@ class HomePageState extends State<HomePage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => ApiGod('$text'),
+                              builder: (context) => SearchPage('$text'),
                             ),
                           );
                         },

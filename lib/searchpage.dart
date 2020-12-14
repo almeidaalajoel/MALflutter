@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
-import 'homepage.dart';
-import 'search.dart';
+import 'classes.dart';
 import 'animepage.dart';
-import 'main.dart';
-import 'animelistpage.dart';
+import 'networkrequests.dart';
 
-class ApiGod extends StatefulWidget {
-  static const routeName = '/apiGod';
+class SearchPage extends StatefulWidget {
+  static const routeName = '/SearchPage';
   final String search;
-  const ApiGod(this.search);
+  const SearchPage(this.search);
   @override
-  _ApiGodState createState() => _ApiGodState();
+  _SearchPageState createState() => _SearchPageState();
 }
 
-class _ApiGodState extends State<ApiGod> {
+class _SearchPageState extends State<SearchPage> {
   Future<Search> futureSearch;
 
   @override
@@ -80,26 +78,39 @@ class _ApiGodState extends State<ApiGod> {
               ),
             );
           },
-          child: Row(children: <Widget>[
-            Expanded(
-              child: Container(
-                height: 70,
-                alignment: Alignment(-1.0, 0.0),
-                child: Text(
-                  '${s.data.title[i]}',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                child: Row(
+                  children: [
+                    Container(
+                      height: 135,
+                      width: 105,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          fit: BoxFit.fitWidth,
+                          //alignment: FractionalOffset.topRight,
+                          image: NetworkImage(s.data.mainPicture[i]),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Flexible(
+                flex: 5,
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  width: 300,
+                  child: Text(
+                    s.data.title[i],
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
-            ),
-            Expanded(
-              child: Image(
-                height: (70.0),
-                image: NetworkImage('${s.data.mainPicture[i]}'),
-              ),
-            )
-          ]),
+            ],
+          ),
         );
       },
       separatorBuilder: (context, i) {

@@ -1,10 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'homepage.dart';
-import 'search.dart';
-import 'searchpage.dart';
-import 'dart:ui' as ui;
-import 'dart:convert';
+import 'classes.dart';
+import 'networkrequests.dart';
 
 class AnimePage extends StatefulWidget {
   static const routeName = '/animePage';

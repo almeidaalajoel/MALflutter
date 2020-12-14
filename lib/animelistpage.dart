@@ -1,11 +1,7 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'homepage.dart';
-import 'search.dart';
-import 'searchpage.dart';
-import 'dart:ui' as ui;
+import 'classes.dart';
 import 'animepage.dart';
-import 'main.dart';
+import 'networkrequests.dart';
 
 class AnimeListPage extends StatefulWidget {
   final String mal;
